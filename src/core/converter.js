@@ -13,8 +13,6 @@ const imageToCanvas = (width, height, orientation) => {
 
   canvas.width = width
   canvas.height = height
-  // canvas.style.width = width
-  // canvas.style.height = height
 
   return (image) => {
     if (!orientation || orientation > 8) {
@@ -24,8 +22,6 @@ const imageToCanvas = (width, height, orientation) => {
     if (orientation > 4) {
       canvas.width = height
       canvas.height = width
-      // canvas.style.width = height
-      // canvas.style.height = width
     }
     switch (orientation) {
       case 2:
@@ -79,13 +75,6 @@ const canvasToBase64 = (canvas, quality = 0.75) => {
   const base64 = canvas.toDataURL("image/jpeg", quality)
   return base64
 }
-
-// const canvasToImage = (canvas, quality=.75, mimeType='image/jpeg') => {
-//   const image = new Image()
-//   const base64str = canvas.toDataURL(mimeType, quality)
-//   image.src = base64str
-//   return image
-// }
 
 const size = (size) => {
   return {
