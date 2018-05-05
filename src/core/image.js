@@ -1,18 +1,26 @@
 const load = (src) => {
   return new Promise((resolve, reject) => {
     const img = new window.Image()
-    img.addEventListener('load', () => {
-      resolve(img)
-    }, false)
+    img.addEventListener(
+      "load",
+      () => {
+        resolve(img)
+      },
+      false
+    )
 
-    img.addEventListener('error', (err) => {
-      reject(err)
-    }, false)
+    img.addEventListener(
+      "error",
+      (err) => {
+        reject(err)
+      },
+      false
+    )
 
     img.src = src
   })
 }
-  /*
+/*
    * Resize the image based on the given height or width boundary.
    * Auto resize based on aspect ratio.
   **/

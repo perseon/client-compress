@@ -1,23 +1,27 @@
-import Base64 from './core/base64'
-import Converter from './core/converter'
-import File from './core/file'
-import Image from './core/image'
-import Photo from './core/Photo'
-import Rotate from './core/rotate'
+import Base64 from "./core/base64"
+import Converter from "./core/converter"
+import File from "./core/file"
+import Image from "./core/image"
+import Photo from "./core/Photo"
+import Rotate from "./core/rotate"
 
 class Compress {
-  attach (el, options) {
+  attach(el, options) {
     return new Promise((resolve, reject) => {
       const input = document.querySelector(el)
-      input.setAttribute('accept', 'image/*')
-      input.addEventListener('change', (evt) => {
-        const output = this.compress([...evt.target.files], options)
-        resolve(output)
-      }, false)
+      input.setAttribute("accept", "image/*")
+      input.addEventListener(
+        "change",
+        (evt) => {
+          const output = this.compress([...evt.target.files], options)
+          resolve(output)
+        },
+        false
+      )
     })
   }
 
-  _compressFile (file, options) {
+  _compressFile(file, options) {
     // Create a new photo object
     const photo = new Photo(options)
     photo.start = window.performance.now()
@@ -26,65 +30,88 @@ class Compress {
     photo.startSize = file.size
 
     return Rotate.orientation(file)
-    .then((orientation) => {
-      photo.orientation = orientation
-      return File.load(file)
-    })
-    .then(this._compressImage(photo))
+      .then((orientation) => {
+        photo.orientation = orientation
+        return File.load(file)
+      })
+      .then(this._compressImage(photo))
   }
 
-  _compressImage (photo) {
+  _compressImage(photo) {
     return (src) => {
-      return Image.load(src).then((img) => {
-        // Store the initial dimensions
-        photo.startWidth = img.naturalWidth
-        photo.startHeight = img.naturalHeight
-        // Resize the image
-        if (photo.resize) {
-          const { width, height } = Image.resize(photo.maxWidth, photo.maxHeight)(img.naturalWidth, img.naturalHeight)
-          photo.endWidth = width
-          photo.endHeight = height
-        } else {
-          photo.endWidth = img.naturalWidth
-          photo.endHeight = img.naturalHeight
-        }
-        return Converter.imageToCanvas(photo.endWidth, photo.endHeight, photo.orientation)(img)
-      })
-      .then((canvas) => {
-        photo.iterations = 1
-        // Base64.mime(Converter.canvasToBase64(canvas))
-        photo.base64prefix = Base64.prefix(photo.ext)
-        return this._loopCompression(canvas, photo.startSize, photo.quality, photo.size, photo.minQuality, photo.iterations)
-      })
-      .then((base64) => {
-        photo.finalSize = Base64.size(base64)
-        return Base64.data(base64)
-      })
-      .then((data) => {
-        photo.end = window.performance.now()
-        const difference = photo.end - photo.start // in ms
+      return Image.load(src)
+        .then((img) => {
+          // Store the initial dimensions
+          photo.startWidth = img.naturalWidth
+          photo.startHeight = img.naturalHeight
+          // Resize the image
+          if (photo.resize) {
+            const { width, height } = Image.resize(
+              photo.maxWidth,
+              photo.maxHeight
+            )(img.naturalWidth, img.naturalHeight)
+            photo.endWidth = width
+            photo.endHeight = height
+          } else {
+            photo.endWidth = img.naturalWidth
+            photo.endHeight = img.naturalHeight
+          }
+          return Converter.imageToCanvas(
+            photo.endWidth,
+            photo.endHeight,
+            photo.orientation
+          )(img)
+        })
+        .then((canvas) => {
+          photo.iterations = 1
+          // Base64.mime(Converter.canvasToBase64(canvas))
+          photo.base64prefix = Base64.prefix(photo.ext)
+          return this._loopCompression(
+            canvas,
+            photo.startSize,
+            photo.quality,
+            photo.size,
+            photo.minQuality,
+            photo.iterations
+          )
+        })
+        .then((base64) => {
+          photo.finalSize = Base64.size(base64)
+          return Base64.data(base64)
+        })
+        .then((data) => {
+          photo.end = window.performance.now()
+          const difference = photo.end - photo.start // in ms
 
-        return {
-          data: data,
-          prefix: photo.base64prefix,
-          elapsedTimeInSeconds: difference / 1000, // in seconds
-          alt: photo.alt,
-          initialSizeInMb: Converter.size(photo.startSize).MB,
-          endSizeInMb: Converter.size(photo.finalSize).MB,
-          ext: photo.ext,
-          quality: photo.quality,
-          endWidthInPx: photo.endWidth,
-          endHeightInPx: photo.endHeight,
-          initialWidthInPx: photo.startWidth,
-          initialHeightInPx: photo.startHeight,
-          sizeReducedInPercent: (photo.startSize - photo.finalSize) / photo.startSize * 100,
-          iterations: photo.iterations
-        }
-      })
+          return {
+            data: data,
+            prefix: photo.base64prefix,
+            elapsedTimeInSeconds: difference / 1000, // in seconds
+            alt: photo.alt,
+            initialSizeInMb: Converter.size(photo.startSize).MB,
+            endSizeInMb: Converter.size(photo.finalSize).MB,
+            ext: photo.ext,
+            quality: photo.quality,
+            endWidthInPx: photo.endWidth,
+            endHeightInPx: photo.endHeight,
+            initialWidthInPx: photo.startWidth,
+            initialHeightInPx: photo.startHeight,
+            sizeReducedInPercent:
+              (photo.startSize - photo.finalSize) / photo.startSize * 100,
+            iterations: photo.iterations
+          }
+        })
     }
   }
 
-  _loopCompression (canvas, size, quality = 1, targetSize, targetQuality = 1, iterations) {
+  _loopCompression(
+    canvas,
+    size,
+    quality = 1,
+    targetSize,
+    targetQuality = 1,
+    iterations
+  ) {
     const base64str = Converter.canvasToBase64(canvas, quality)
     const newSize = Base64.size(base64str)
     // const base64str = convertCanvasToBase64(src)
@@ -92,11 +119,25 @@ class Compress {
     iterations += 1
     // add in iteration count
     if (newSize > targetSize) {
-      return this._loopCompression(canvas, newSize, quality - 0.1, targetSize, targetQuality, iterations)
+      return this._loopCompression(
+        canvas,
+        newSize,
+        quality - 0.1,
+        targetSize,
+        targetQuality,
+        iterations
+      )
     }
 
     if (quality > targetQuality) {
-      return this._loopCompression(canvas, newSize, quality - 0.1, targetSize, targetQuality, iterations)
+      return this._loopCompression(
+        canvas,
+        newSize,
+        quality - 0.1,
+        targetSize,
+        targetQuality,
+        iterations
+      )
     }
 
     if (quality < 0.5) {
@@ -105,13 +146,15 @@ class Compress {
     return base64str
   }
 
-  compress (files, options) {
-    return Promise.all(files.map((file) => {
-      return this._compressFile(file, options)
-    }))
+  compress(files, options) {
+    return Promise.all(
+      files.map((file) => {
+        return this._compressFile(file, options)
+      })
+    )
   }
 
-  static convertBase64ToFile (base64, mime) {
+  static convertBase64ToFile(base64, mime) {
     return Converter.base64ToFile(base64, mime)
   }
 }
