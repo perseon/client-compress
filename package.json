@@ -4,7 +4,7 @@
   "description": "A client side JavaScript image compression library",
   "main": "index.js",
   "scripts": {
-    "test": "babel-node ./node_modules/.bin/isparta cover node_modules/.bin/_mocha -- --ui bdd -R spec --recursive --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
     "webpack": "webpack --config webpack.config.js --watch"
   },
   "author": "alextanhongpin",
