@@ -2,3 +2,4 @@ node_modules
 coverage
 10mb-image.jpg
 yarn-error.log
+out

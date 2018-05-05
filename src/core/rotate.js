@@ -40,4 +40,4 @@ const orientation = (file) => {
   })
 }
 
-export default { orientation }
+export default {orientation}

@@ -1,38 +1,24 @@
-var path = require('path')
-var webpack = require('webpack')
+const path = require('path');
+const webpack = require("webpack")
 
 module.exports = {
-  entry: './src/Compress.js',
-  output: {
-    path: path.resolve(__dirname, ''),
-    filename: 'index.js',
-    library: 'Compress',
-    libraryTarget: 'umd'
-  },
-  module: {
-    loaders: [
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-        exclude: /node_modules/,
-        query: {
-          presets: ['es2015', 'stage-3']
-        }
-      }
-    ]
-  },
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin({
-      compress: {
-        warnings: false
-      },
-      output: {
-        comments: false
-      }
-    })
-  ],
-  stats: {
-    colors: true
-  },
-  devtool: 'source-map'
-}
+   entry: path.resolve(__dirname, 'src', 'Compress.js'),
+   output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'index.js',
+      library: "Compress",
+      libraryTarget: "umd"
+   },
+   resolve: {
+      extensions: ['.js']
+   },
+   module: {
+      rules: [
+         {
+             test: /\.js$/,
+             exclude: /node_modules/,
+            loader: 'babel-loader'
+         }
+      ]
+   }
+};

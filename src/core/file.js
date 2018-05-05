@@ -1,4 +1,3 @@
-
 const load = (file) => {
   return new Promise((resolve, reject) => {
     const fileReader = new window.FileReader()
@@ -14,4 +13,4 @@ const load = (file) => {
   })
 }
 
-export default { load }
+export default {load}

@@ -1,4 +1,3 @@
-
 const load = (src) => {
   return new Promise((resolve, reject) => {
     const img = new window.Image()

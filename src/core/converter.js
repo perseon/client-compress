@@ -1,4 +1,3 @@
-
 const base64ToFile = (base64, mime = 'image/jpeg') => {
   const byteString = window.atob(base64)
   const content = []
@@ -90,7 +89,7 @@ const canvasToBase64 = (canvas, quality = 0.75) => {
 
 const size = (size) => {
   return {
-    KB: size / 1000,
+    kB: size / 1000,
     MB: size / (1000 * 1000)
   }
 }
