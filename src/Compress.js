@@ -1,152 +1,110 @@
-import Base64 from "./core/base64"
-import Converter from "./core/converter"
-import File from "./core/file"
-import Image from "./core/image"
+import base64 from "./core/base64"
+import converter from "./core/converter"
+import image from "./core/image"
 import Photo from "./core/Photo"
-import Rotate from "./core/rotate"
 
 class Compress {
-  attach(el, options) {
-    return new Promise((resolve, reject) => {
-      const input = document.querySelector(el)
-      input.setAttribute("accept", "image/*")
-      input.addEventListener(
-        "change",
-        (evt) => {
-          const output = this.compress([...evt.target.files], options)
-          resolve(output)
-        },
-        false
-      )
-    })
+  constructor(options) {
+    this.options = options
   }
 
-  _compressFile(file, options) {
+  async _compressFile(file) {
+    const conversion = {}
+    conversion.start = window.performance.now()
+    conversion.quality = this.options.quality
+
     // Create a new photo object
-    const photo = new Photo(options)
-    photo.start = window.performance.now()
-    photo.alt = file.name
-    photo.ext = file.type
-    photo.startSize = file.size
+    const photo = new Photo(file)
 
-    return Rotate.orientation(file)
-      .then((orientation) => {
-        photo.orientation = orientation
-        return File.load(file)
-      })
-      .then(this._compressImage(photo))
+    // Load the file into the photo object
+    await photo.load()
+
+    return await this._compressImage(photo, conversion)
   }
 
-  _compressImage(photo) {
-    return (src) => {
-      return Image.load(src)
-        .then((img) => {
-          // Store the initial dimensions
-          photo.startWidth = img.naturalWidth
-          photo.startHeight = img.naturalHeight
-          // Resize the image
-          if (photo.resize) {
-            const { width, height } = Image.resize(
-              photo.maxWidth,
-              photo.maxHeight
-            )(img.naturalWidth, img.naturalHeight)
-            photo.endWidth = width
-            photo.endHeight = height
-          } else {
-            photo.endWidth = img.naturalWidth
-            photo.endHeight = img.naturalHeight
-          }
-          return Converter.imageToCanvas(
-            photo.endWidth,
-            photo.endHeight,
-            photo.orientation
-          )(img)
-        })
-        .then((canvas) => {
-          photo.iterations = 0
-          // Base64.mime(Converter.canvasToBase64(canvas))
-          photo.base64prefix = Base64.prefix(photo.ext)
-          return this._loopCompression(
-            canvas,
-            photo.startSize,
-            photo.quality,
-            photo.size
-          )
-        })
-        .then(({base64str, quality, iterations}) => {
-          photo.finalSize = Base64.size(base64str)
-          photo.iterations = iterations
-          photo.quality = quality
-          return Base64.data(base64str)
-        })
-        .then((data) => {
-          photo.end = window.performance.now()
-          const difference = photo.end - photo.start // in ms
+  async _compressImage(photo, conversion) {
+    // Store the initial dimensions
+    conversion.startWidth = photo.width
+    conversion.startHeight = photo.height
 
-          return {
-            data: data,
-            prefix: photo.base64prefix,
-            elapsedTimeInSeconds: difference / 1000, // in seconds
-            alt: photo.alt,
-            initialSizeInMb: Converter.size(photo.startSize).MB,
-            endSizeInMb: Converter.size(photo.finalSize).MB,
-            ext: photo.ext,
-            quality: photo.quality,
-            endWidthInPx: photo.endWidth,
-            endHeightInPx: photo.endHeight,
-            initialWidthInPx: photo.startWidth,
-            initialHeightInPx: photo.startHeight,
-            sizeReducedInPercent:
-              (photo.startSize - photo.finalSize) / photo.startSize * 100,
-            iterations: photo.iterations
-          }
-        })
+    // Resize the image
+    let newWidth, newHeight
+
+    if (this.options.resize) {
+      const resizedDims = image.resize(
+        photo.width,
+        photo.height,
+        this.options.maxWidth,
+        this.options.maxHeight
+      )
+      newWidth = resizedDims.width
+      newHeight = resizedDims.height
+    } else {
+      newWidth = photo.width
+      newHeight = photo.height
     }
+
+    conversion.endWidth = newWidth
+    conversion.endHeight = newHeight
+
+    // Create a canvas element and resize the image onto the canvas
+    const canvas = photo.getCanvas(newWidth, newHeight)
+
+    // Initialise some variables for recursive call
+    conversion.iterations = 0
+    conversion.startSizeMB = converter.size(photo.size).MB
+
+    await this._loopCompression(
+      canvas,
+      photo,
+      conversion
+    )
+
+    conversion.endSizeMB = converter.size(photo.size).MB
+    conversion.sizeReducedInPercent = (conversion.startSizeMB - conversion.endSizeMB) / conversion.startSizeMB * 100
+
+    conversion.end = window.performance.now()
+    conversion.elapsedTimeInSeconds = (conversion.end - conversion.start) / 1000
+
+    return {photo, info: conversion}
   }
 
   _loopCompression(
     canvas,
-    size,
-    quality = 1,
-    targetSize,
-    minQuality = 0.5,
-    iterations = 1
+    photo,
+    conversion
   ) {
-    const base64str = Converter.canvasToBase64(canvas, quality)
-    const newSize = Base64.size(base64str)
+    conversion.iterations++
 
-    console.log(newSize)
+    photo.data = converter.canvasToBase64(canvas, conversion.quality)
+    photo.size = base64.size(photo.data)
 
-    if (newSize > targetSize) {
+    if (converter.size(photo.size).MB > this.options.targetSize) {
       // toFixed avoids floating point errors messing with inequality
-      if (quality.toFixed(10) - 0.1 < minQuality) {
-        throw new Error("Couldn't compress image to specified max size")
+      if (conversion.quality.toFixed(10) - 0.1 < this.options.minQuality) {
+        // throw new Error("Couldn't compress image to specified max size")
+        console.error("Ran out")
+        return
       } else {
+        conversion.quality -= this.options.qualityStepSize
         return this._loopCompression(
           canvas,
-          newSize,
-          quality - 0.1,
-          targetSize,
-          minQuality,
-          iterations + 1
+          photo,
+          conversion
         )
       }
     } else {
-      return {base64str, quality, iterations}
+      return
     }
   }
 
-  compress(files, options) {
-    return Promise.all(
-      files.map((file) => {
-        return this._compressFile(file, options)
-      })
-    )
+  compress(files) {
+    return Promise.all(files.map((file) => this._compressFile(file)))
   }
 
-  static convertBase64ToFile(base64, mime) {
-    return Converter.base64ToFile(base64, mime)
-  }
+  // static convertBase64ToFile(base64, mime) {
+  //   return converter.base64ToFile(base64, mime)
+  // }
 }
 
 // Supported input formats

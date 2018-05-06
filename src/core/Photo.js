@@ -1,35 +1,39 @@
+import fileUtils from "./file"
+import rotate from "./rotate"
+import imageUtils from "./image"
+import converter from "./converter"
+
 // The photo model
 export default class Photo {
-  constructor({
-    quality = 0.75,
-    size = 2,
-    maxWidth = 1920,
-    maxHeight = 1920,
-    resize = true
-  }) {
-    this.start = window.performance.now()
-    this.end = null
+  constructor(file) {
+    this._file = file
+    this.name = file.name
+    this.type = file.type
+    this.size = file.size
+  }
 
-    this.alt = null
-    this.ext = null
-    this.startSize = null
-    this.startWidth = null
-    this.startHeight = null
-    // How much will the quality decrease by each compression
-    // this.stepQuality = stepQuality
+  async _calculateOrientation() {
+    const orientation = await rotate.orientation(this._file)
+    this.orientation =  orientation
+  }
 
-    // size in MB
-    this.size = size * 1000 * 1000
-    this.endSize = null
-    this.endWidth = null
-    this.endHeight = null
-    this.iterations = 0
-    this.base64prefix = null
-    // Carry out image resizing
-    this.quality = quality
-    this.resize = resize
-    this.maxWidth = maxWidth
-    this.maxHeight = maxHeight
-    this.orientation = 1
+  async load() {
+    await this._calculateOrientation()
+    const data = await fileUtils.load(this._file) // base64 data URL
+    this.data = data
+
+    const img = await imageUtils.load(data)
+    this._img = img
+    this.width = img.naturalWidth
+    this.height = img.naturalHeight
+  }
+
+  getCanvas(width, height) {
+    return converter.imageToCanvas(
+      this._img,
+      width,
+      height,
+      this.orientation
+    )
   }
 }

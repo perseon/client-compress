@@ -4,12 +4,6 @@ const size = (base64) => {
   // return len * 3 / 4
 }
 
-// strip off the data: url prefix to get just the base64-encoded bytes
-// var data = img.replace(/^data:image\/\w+;base64,/, "");
-const mime = (base64) => {
-  return base64.split(";")[0].match(/jpeg|png|gif/)[0]
-}
-
 const data = (base64) => {
   return base64.replace(/^data:image\/\w+;base64,/, "")
 }
@@ -18,4 +12,4 @@ const prefix = (ext) => {
   return `data:${ext};base64,`
 }
 
-export default { size, mime, data, prefix }
+export default { size, data, prefix }
