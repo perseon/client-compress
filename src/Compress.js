@@ -63,21 +63,21 @@ class Compress {
           )(img)
         })
         .then((canvas) => {
-          photo.iterations = 1
+          photo.iterations = 0
           // Base64.mime(Converter.canvasToBase64(canvas))
           photo.base64prefix = Base64.prefix(photo.ext)
           return this._loopCompression(
             canvas,
             photo.startSize,
             photo.quality,
-            photo.size,
-            photo.minQuality,
-            photo.iterations
+            photo.size
           )
         })
-        .then((base64) => {
-          photo.finalSize = Base64.size(base64)
-          return Base64.data(base64)
+        .then(({base64str, quality, iterations}) => {
+          photo.finalSize = Base64.size(base64str)
+          photo.iterations = iterations
+          photo.quality = quality
+          return Base64.data(base64str)
         })
         .then((data) => {
           photo.end = window.performance.now()
@@ -109,41 +109,31 @@ class Compress {
     size,
     quality = 1,
     targetSize,
-    targetQuality = 1,
-    iterations
+    minQuality = 0.5,
+    iterations = 1
   ) {
     const base64str = Converter.canvasToBase64(canvas, quality)
     const newSize = Base64.size(base64str)
-    // const base64str = convertCanvasToBase64(src)
-    // const size = getFileSize(base64str);
-    iterations += 1
-    // add in iteration count
+
+    console.log(newSize)
+
     if (newSize > targetSize) {
-      return this._loopCompression(
-        canvas,
-        newSize,
-        quality - 0.1,
-        targetSize,
-        targetQuality,
-        iterations
-      )
+      // toFixed avoids floating point errors messing with inequality
+      if (quality.toFixed(10) - 0.1 < minQuality) {
+        throw new Error("Couldn't compress image to specified max size")
+      } else {
+        return this._loopCompression(
+          canvas,
+          newSize,
+          quality - 0.1,
+          targetSize,
+          minQuality,
+          iterations + 1
+        )
+      }
+    } else {
+      return {base64str, quality, iterations}
     }
-
-    if (quality > targetQuality) {
-      return this._loopCompression(
-        canvas,
-        newSize,
-        quality - 0.1,
-        targetSize,
-        targetQuality,
-        iterations
-      )
-    }
-
-    if (quality < 0.5) {
-      return base64str
-    }
-    return base64str
   }
 
   compress(files, options) {
