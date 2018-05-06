@@ -1,15 +1,17 @@
 {
-  "name": "compress.js",
-  "version": "1.1.2",
-  "description": "A client side JavaScript image compression library",
-  "main": "lib/Compress.js",
+  "name": "client-compress",
+  "version": "1.0.0",
+  "description":
+    "A client side JavaScript image compression library. Forked from compress.js (alextanhongpin), and improved rewrite by David Moodie.",
+  "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack -p --config webpack.config.js",
-    "watch": "webpack --config webpack.config.js --watch -o out/index.js --mode development --devtool source-map",
+    "watch":
+      "webpack --config webpack.config.js --watch -o out/index.js --mode development --devtool source-map",
     "precommit": "pretty-quick --staged"
   },
-  "author": "alextanhongpin",
+  "author": "David Moodie",
   "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.26.3",
@@ -27,10 +29,5 @@
   "dependencies": {
     "babel-runtime": "^6.26.0"
   },
-  "keywords": [
-    "javascript",
-    "image",
-    "compression",
-    "base64"
-  ]
+  "keywords": ["javascript", "image", "compression", "base64"]
 }
