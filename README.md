@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/davejm/client-compress.svg?branch=master)](https://travis-ci.org/davejm/client-compress)
 [![npm](https://img.shields.io/npm/v/client-compress.svg)](https://www.npmjs.com/package/client-compress)
 
+[Check out the demo!](https://davidmoodie.com/client-compress/)
+
 A JavaScript client side image compression library. This library uses the Canvas API to compress the image, and thus will not work on the node.js server-side. This library is forked from [compress.js](https://github.com/alextanhongpin/compress.js). This version has been updated to use the latest packages, uses async/await, fixes bugs, offers more options and a cleaner API.
 
 The input is an array of Blob like objects. This includes Blob and File objects. The output format is current a base64 encoded JPEG, however, this might change to a Blob in the future with the option of outputting the base64 instead.
@@ -39,10 +41,6 @@ npm install client-compress --save
 ```
 const Compress = require('client-compress')
 ```
-
-<!-- ### Demo -->
-
-<!-- Try out our demo [here](https://compressjs.herokuapp.com/). -->
 
 ## Usage
 
