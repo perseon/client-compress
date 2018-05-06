@@ -1,0 +1,15 @@
+language: node_js
+node_js:
+  - stable
+cache: yarn
+script: yarn build
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: david@davidmoodie.com
+  api_key:
+    secure: OtO5ogglqEE07W9tc+mvp9NLIwHYoklJWgareLBBdFRitZxlfSe8G4xiHgNsLqvgAx+WgY+XzF6HdrrO85vbxCUChq3+kdE8QYJP2X2vOO3aZ4MnlHAqs3pm4JJl2X150XzRMUPqDkbd686AOKfvSiGkUTMlxYXdeDq2qwb5s3SmD8xnIYbymnYwjb3bstqa3hlNMkezST1nEZmSptyJgFBRz1iYE2QIDr/zh74RALgfJPmclQokKQEDL5C6lk8QDYZgwayRxXh7XrEalmN1Ufp2AU1zsG7AAJKoGcpoJ1ou5LVNOy1rFS3mFpb9Ry++XLEFN7DIEuxzHI84FTKvdOsrAlClR2k0BTd1nXnGYdg8fzF8aGNEZeA2ltuR23OcaGnMAZ4H9SzKknJJ6jyaYhKpO8rGIWCD4+/RehaFL+RWKFY8UZos7Qrd9OF9MMdxJUHyOYXV/NxdbRcoMClTmJbQeQKNM0WG+fOUpo2hUF1bsqacSV+qUqYHv1S/J5W4gdaFlo0BV+K035/Oo8OWmAFu5JFAXWDSR6XU1Yq01BG1g2VY/g1IqyPdCNcVVb5JZGfDOWLfXnmmreEeKnBV5J263ylZZZOdLbhd+v7abhgQrQig4V8d996WZZKR4kxhk4MdKdX/UwxHSwk5KN01W/9sPxK92SC/tyfwTXuWwOU=
+  on:
+    tags: true
+    repo: davejm/client-compress
+    branch: master

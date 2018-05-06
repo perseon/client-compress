@@ -4,6 +4,7 @@
   "description":
     "A client side JavaScript image compression library. Forked from compress.js (alextanhongpin), and improved rewrite by David Moodie.",
   "main": "dist/index.js",
+  "files": ["dist/index.js"],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack -p --config webpack.config.js",
@@ -11,7 +12,7 @@
       "webpack --config webpack.config.js --watch -o out/index.js --mode development --devtool source-map",
     "precommit": "pretty-quick --staged"
   },
-  "author": "David Moodie",
+  "author": "David Moodie <david@davidmoodie.com> (https://davidmoodie.com)",
   "license": "MIT",
   "devDependencies": {
     "babel-core": "^6.26.3",
