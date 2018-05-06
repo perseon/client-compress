@@ -5,7 +5,28 @@ import Photo from "./core/Photo"
 
 class Compress {
   constructor(options) {
-    this.options = options
+    this.setOptions(options)
+  }
+
+  setOptions(options) {
+    const defaultOptions = {
+      targetSize: 1, // the max size in MB
+      quality: 0.75, // the quality of the image, max is 1
+      minQuality: 0.5,
+      qualityStepSize: 0.1,
+      maxWidth: 1920,
+      maxHeight: 1920,
+      resize: true,
+      throwIfSizeNotReached: false
+    }
+
+    const handler = {
+      get: (obj, prop) => (prop in obj ? obj[prop] : defaultOptions[prop])
+    }
+
+    const p = new Proxy(options, handler)
+
+    this.options = p
   }
 
   async _compressFile(file) {
@@ -54,26 +75,21 @@ class Compress {
     conversion.iterations = 0
     conversion.startSizeMB = converter.size(photo.size).MB
 
-    await this._loopCompression(
-      canvas,
-      photo,
-      conversion
-    )
+    await this._loopCompression(canvas, photo, conversion)
 
     conversion.endSizeMB = converter.size(photo.size).MB
-    conversion.sizeReducedInPercent = (conversion.startSizeMB - conversion.endSizeMB) / conversion.startSizeMB * 100
+    conversion.sizeReducedInPercent =
+      (conversion.startSizeMB - conversion.endSizeMB) /
+      conversion.startSizeMB *
+      100
 
     conversion.end = window.performance.now()
     conversion.elapsedTimeInSeconds = (conversion.end - conversion.start) / 1000
 
-    return {photo, info: conversion}
+    return { photo, info: conversion }
   }
 
-  _loopCompression(
-    canvas,
-    photo,
-    conversion
-  ) {
+  _loopCompression(canvas, photo, conversion) {
     conversion.iterations++
 
     photo.data = converter.canvasToBase64(canvas, conversion.quality)
@@ -82,16 +98,19 @@ class Compress {
     if (converter.size(photo.size).MB > this.options.targetSize) {
       // toFixed avoids floating point errors messing with inequality
       if (conversion.quality.toFixed(10) - 0.1 < this.options.minQuality) {
-        // throw new Error("Couldn't compress image to specified max size")
-        console.error("Ran out")
+        const errorText = `Couldn't compress image to target size while maintaining quality.
+        Target size: ${this.options.targetSize}
+        Actual size: ${converter.size(photo.size).MB}`
+
+        if (!this.options.throwIfSizeNotReached) {
+          console.error(errorText)
+        } else {
+          throw new Error(errorText)
+        }
         return
       } else {
         conversion.quality -= this.options.qualityStepSize
-        return this._loopCompression(
-          canvas,
-          photo,
-          conversion
-        )
+        return this._loopCompression(canvas, photo, conversion)
       }
     } else {
       return
