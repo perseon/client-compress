@@ -5,7 +5,7 @@
   "main": "lib/Compress.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack -p --config webpack.config.js --watch",
+    "build": "webpack -p --config webpack.config.js",
     "watch":
       "webpack --config webpack.config.js --watch -o out/index.js --mode development --devtool source-map",
     "precommit": "pretty-quick --staged"
