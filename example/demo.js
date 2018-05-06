@@ -3,8 +3,8 @@
 const options = {
   targetSize: 0.15,
   quality: 0.75,
-  maxWidth: 1920,
-  maxHeight: 1920
+  maxWidth: 1600,
+  maxHeight: 1600
 }
 
 const compress = new Compress(options)
@@ -18,13 +18,11 @@ upload.addEventListener(
   (evt) => {
     const files = [...evt.target.files]
     compress.compress(files).then((conversions) => {
-      // console.log(conversions)
       const { photo, info } = conversions[0]
 
       preview.src = photo.data
 
-      console.log(photo)
-      console.log(info)
+      console.log({photo, info})
     })
   },
   false

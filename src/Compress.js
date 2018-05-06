@@ -95,6 +95,13 @@ class Compress {
     photo.data = converter.canvasToBase64(canvas, conversion.quality)
     photo.size = base64.size(photo.data)
 
+    if (conversion.iterations == 1) {
+      // Update the photo width and height properties now that the photo data
+      // represents an image with these dimensions.
+      photo.width = conversion.endWidth
+      photo.height = conversion.endHeight
+    }
+
     if (converter.size(photo.size).MB > this.options.targetSize) {
       // toFixed avoids floating point errors messing with inequality
       if (conversion.quality.toFixed(10) - 0.1 < this.options.minQuality) {

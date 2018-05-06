@@ -1,5 +1,4 @@
 const load = (file) => {
-  console.log("Got file to load", file)
   return new Promise((resolve, reject) => {
     const fileReader = new window.FileReader()
     fileReader.addEventListener(

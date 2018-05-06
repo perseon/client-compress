@@ -1,108 +1,127 @@
-<!-- [![Build Status](https://travis-ci.org/alextanhongpin/compress.js.svg?branch=master)](https://travis-ci.org/alextanhongpin/compress.js) -->
+# client-compress
 
-# compress.js
-A JavaScript client side image compression. This library uses the Canvas API to compress the image, and thus will not work on the node.js server-side.
+A JavaScript client side image compression library. This library uses the Canvas API to compress the image, and thus will not work on the node.js server-side. This library is forked from [compress.js](https://github.com/alextanhongpin/compress.js). This version has been updated to use the latest packages, uses async/await, fixes bugs, offers more options and a cleaner API.
 
-### Advantage:
+## Advantages
 
-- quick compression on the client-side
-- compress multiple images and convert them to base64 string
-- save data by compressing it on the client-side before sending to the server
-- automatically resize the image to max 1920px (width or height, but mantains the aspect ratio of the images)
-- fix image rotation issue when uploading images from Android an iOS
+- Quick compression on the client-side
+- Compress multiple images and convert them to base64 string
+- Save data by compressing it on the client-side before sending to the server
+- Automatically resize the image to max 1920px (width or height, but maintains the aspect ratio of the images) - this is configurable
+- Fix image rotation issue when uploading images from Android an iOS (uses EXIF data)
 
-### NOTE:
+## Limitations
 
 There are several limitations for this library:
-- When working with `image/gif`, the compressed image will no longer animate. 
+- When working with `image/gif`, the compressed image will no longer animate.
 - When working with `image/png` with transparent background, the compressed image will lose transparency and result in black background.
 
 
-### Installation
-```
-npm install compress.js --save
-```
-
-### Import
+## Installation
 
 ```
-const Compress = require('compress.js')
+yarn add client-compress
 ```
 
+OR
 
-### Demo
+```
+npm install client-compress --save
+```
 
-Try out our demo [here](https://compressjs.herokuapp.com/).
+## Import
 
-### Usage
+```
+const Compress = require('client-compress')
+```
+
+<!-- ### Demo -->
+
+<!-- Try out our demo [here](https://compressjs.herokuapp.com/). -->
+
+## Usage
+
+See the example directory for a full example.
+
+### Listening to an input element.
 
 ```javascript
-
-// Initialization
-const compress = new Compress()
-
-// Attach listener
-const upload = document.getElementById('upload')
-upload.addEventListener('change', function (evt) {
-  const files = [...evt.target.files]
-  compress.compress(files, {
-    size: 4, // the max size in MB, defaults to 2MB
-    quality: .75, // the quality of the image, max is 1,
-    maxWidth: 1920, // the max width of the output image, defaults to 1920px
-    maxHeight: 1920, // the max height of the output image, defaults to 1920px
-    resize: true, // defaults to true, set false if you do not want to resize the image width and height
-  }).then((data) => {
-    // returns an array of compressed images
-  })
-}, false)
-
-
-// or simpler
-compress.attach('#upload', {
-  size: 4,
-  quality: .75
-}).then((data) => {
-  // do something with the compressed image
-})
-```
-
-```javascript
-// example output
-[{
-  alt: '10mb-image.jpg',
-  data: '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBD...',
-  elapsedTimeInSeconds: 1.9292250000000004,
-  endHeightInPx: 1280,
-  endSizeInMb: 0.44418832116788315,
-  endWidthInPx: 1920, 
-  ext: 'image/jpeg',
-  initialHeightInPx: 3744,
-  initialSizeInMb: 8.989774,
-  initialWidthInPx: 5616,
-  iterations: 1,
-  prefix: 'data:jpeg;base64,'
+const options = {
+  targetSize: 0.2,
   quality: 0.75,
-  sizeReducedInPercent: 95.058960089899,
-}]
+  maxWidth: 800,
+  maxHeight: 600
+}
+
+const compress = new Compress(options)
+const upload = document.getElementById("upload")
+
+upload.addEventListener(
+  "change",
+  (evt) => {
+    const files = [...evt.target.files]
+    compress.compress(files).then((conversions) => {
+      // Conversions is an array of objects like { photo, info }.
+      // 'photo' has the photo data while 'info' contains metadata
+      // about that particular image compression (e.g. time taken).
+
+      const { photo, info } = conversions[0]
+
+      console.log(photo)
+      console.log(info)
+    })
+  },
+  false
+)
 ```
 
-You can even convert the compressed base64 string to a file before uploading to the server:
+### Example Output
+
+The `compress` method returns a promise which resolves to an array of objects which
+take the form `{ photo, info }` where photo contains data about the output photo,
+and info contains metadata about that particular compression.
+
+Here is an example of one of the elements in the output array:
 
 ```javascript
-compress.attach('#upload', {
-  size: 4,
-  quality: .75
-}).then((results) => {
-  // Example mimes:
-  // image/png, image/jpeg, image/jpg, image/gif, image/bmp, image/tiff, image/x-icon,  image/svg+xml, image/webp, image/xxx, image/png, image/jpeg, image/webp
-  // If mime is not provided, it will default to image/jpeg
-  const img1 = results[0]
-  const base64str = img1.data
-  const imgExt = img1.ext
-  const file = Compress.convertBase64ToFile(base64str, imgExt)
-  // -> Blob {size: 457012, type: "image/png"}
-})
+{
+  // This is the photo output
+  "photo": {
+    "name": "photo-1234.jpg",
+    "type": "image/jpeg",
+    "size": 55472.99270072992,
+    "orientation": -1,
+    "data": "data:image/jpeg;base64,.......................",
+    "width": 800,
+    "height": 435.6913183279743
+  },
+  // This is the metadata for this conversion
+  "info": {
+    "start": 3572.8999999992084,
+    "quality": 0.75,
+    "startWidth": 4976,
+    "startHeight": 2710,
+    "endWidth": 800,
+    "endHeight": 435.6913183279743,
+    "iterations": 1,
+    "startSizeMB": 3.11684,
+    "endSizeMB": 0.05547299270072992,
+    "sizeReducedInPercent": 98.22021686385153,
+    "end": 4180.400000004738,
+    "elapsedTimeInSeconds": 0.6075000000055297
+  }
+}
 ```
 
+## Options
 
-TODO: Add d.ts to support typescript
+| Option                | Default | Description                                                                                                                                                                                                                                                                                          |
+|-----------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| targetSize            | 1       | The target size of the photo in MB. If the image size is greater than the target size after a compression, the image is compressed with a lower quality. This happens in a loop until the next compression would make the size <= target size or the quality would be less than the minimum quality. |
+| quality               | 0.75    | The initial quality to compress the image at.                                                                                                                                                                                                                                                        |
+| minQuality            | 0.5     | The minimum quality allowed for an image compression. This is only relevant if the initial compression does not make the image size <= the target size.                                                                                                                                              |
+| qualityStepSize       | 0.1     | The amount to try reducing the quality by in each iteration, if the image size is still > the target size.                                                                                                                                                                                           |
+| maxWidth              | 1920    | The maximum width of the output image.                                                                                                                                                                                                                                                               |
+| maxHeight             | 1920    | The maximum height of the output image.                                                                                                                                                                                                                                                              |
+| resize                | true    | Whether the image should be resized to within the bounds set by maxWidth and maxHeight (maintains the aspect ratio).                                                                                                                                                                                 |
+| throwIfSizeNotReached | false   | Whether to throw an Error if the target size is not reached.                                                                                                                                                                                                                                         |
