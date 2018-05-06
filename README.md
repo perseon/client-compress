@@ -2,20 +2,22 @@
 
 A JavaScript client side image compression library. This library uses the Canvas API to compress the image, and thus will not work on the node.js server-side. This library is forked from [compress.js](https://github.com/alextanhongpin/compress.js). This version has been updated to use the latest packages, uses async/await, fixes bugs, offers more options and a cleaner API.
 
+The input is an array of Blob like objects. This includes Blob and File objects. The output format is current a base64 encoded JPEG, however, this might change to a Blob in the future with the option of outputting the base64 instead.
+
 ## Advantages
 
-- Quick compression on the client-side
-- Compress multiple images and convert them to base64 string
-- Save data by compressing it on the client-side before sending to the server
-- Automatically resize the image to max 1920px (width or height, but maintains the aspect ratio of the images) - this is configurable
-- Fix image rotation issue when uploading images from Android an iOS (uses EXIF data)
+* Quick compression on the client-side
+* Compress multiple images and convert them to base64 string
+* Save data by compressing it on the client-side before sending to the server
+* Automatically resize the image to max 1920px (width or height, but maintains the aspect ratio of the images) - this is configurable
+* Fix image rotation issue when uploading images from Android an iOS (uses EXIF data)
 
 ## Limitations
 
 There are several limitations for this library:
-- When working with `image/gif`, the compressed image will no longer animate.
-- When working with `image/png` with transparent background, the compressed image will lose transparency and result in black background.
 
+* When working with `image/gif`, the compressed image will no longer animate.
+* When working with `image/png` with transparent background, the compressed image will lose transparency and result in black background.
 
 ## Installation
 
@@ -116,7 +118,7 @@ Here is an example of one of the elements in the output array:
 ## Options
 
 | Option                | Default | Description                                                                                                                                                                                                                                                                                          |
-|-----------------------|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| --------------------- | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | targetSize            | 1       | The target size of the photo in MB. If the image size is greater than the target size after a compression, the image is compressed with a lower quality. This happens in a loop until the next compression would make the size <= target size or the quality would be less than the minimum quality. |
 | quality               | 0.75    | The initial quality to compress the image at.                                                                                                                                                                                                                                                        |
 | minQuality            | 0.5     | The minimum quality allowed for an image compression. This is only relevant if the initial compression does not make the image size <= the target size.                                                                                                                                              |
