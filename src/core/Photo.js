@@ -27,7 +27,8 @@ export default class Photo {
 
     // Create an object URL which points to the File/Blob image data
     const objectUrl = URL.createObjectURL(this.data)
-    const img = await loadImageElement(objectUrl)
+    const img = new window.Image()
+    await loadImageElement(img, objectUrl)
 
     // Image element has now loaded the object so we can safely revoke the
     // object URL

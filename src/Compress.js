@@ -1,5 +1,5 @@
 import * as converter from "./core/converter"
-import { resize } from "./core/image"
+import { resize, loadImageElement } from "./core/image"
 import Photo from "./core/Photo"
 
 class Compress {
@@ -129,8 +129,12 @@ class Compress {
     return Promise.all(files.map((file) => this._compressFile(file)))
   }
 
-  static async blobToBase64(blob) {
-    return await converter.blobToBase64(blob)
+  static async blobToBase64(...args) {
+    return await converter.blobToBase64(...args)
+  }
+
+  static async loadImageElement(...args) {
+    return await loadImageElement(...args)
   }
 }
 

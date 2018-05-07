@@ -1,6 +1,5 @@
-const loadImageElement = (src) => {
+const loadImageElement = (img, src) => {
   return new Promise((resolve, reject) => {
-    const img = new window.Image()
     img.addEventListener(
       "load",
       () => {
