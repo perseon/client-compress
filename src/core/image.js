@@ -1,6 +1,5 @@
-const load = (src) => {
+const loadImageElement = (img, src) => {
   return new Promise((resolve, reject) => {
-    const img = new window.Image()
     img.addEventListener(
       "load",
       () => {
@@ -43,4 +42,4 @@ const resize = (currentWidth, currentHeight, maxWidth, maxHeight) => {
   return { width: outputWidth, height: outputHeight }
 }
 
-export default { load, resize }
+export { loadImageElement, resize }
