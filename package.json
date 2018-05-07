@@ -1,6 +1,6 @@
 {
   "name": "client-compress",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description":
     "A client side JavaScript image compression library. Forked from compress.js (alextanhongpin), and improved rewrite by David Moodie.",
   "main": "dist/index.js",
