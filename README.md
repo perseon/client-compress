@@ -7,7 +7,9 @@
 
 A JavaScript client side image compression library. This library uses the Canvas API to compress the image, and thus will not work on the node.js server-side. This library is forked from [compress.js](https://github.com/alextanhongpin/compress.js). This version has been updated to use the latest packages, uses async/await, fixes bugs, offers more options and a cleaner API.
 
-The input is an array of Blob like objects. This includes Blob and File objects. The output format is currently a base64 encoded JPEG, however, this might change to a Blob in the future with the option of outputting the base64 instead.
+The input format is a Blob-like object (Blob or File) representing an image (can take most image formats), and the output data format is a JPEG Blob. See the usage section for details.
+
+**Note on v1 vs v2+:** V1 originally returned the photo data as a base64 encoded string. The processing also used this base64 string which made the size calculation inaccurate. V2 and up returns the photo data as Blob object. If you really need to, you can use the static method `Compress.blobToBase64` to convert a Blob to base64 e.g. for displaying in an `img` element or uploading to server (it is preferred to use URL.createObjectURL). However, you should be able to upload images as raw Blobs. An example of how to display a compressed image is below.
 
 ## Advantages
 
@@ -46,7 +48,7 @@ const Compress = require('client-compress')
 
 See the example directory for a full example.
 
-### Listening to an input element.
+### Listening to an input element and displaying the compressed image
 
 ```javascript
 const options = {
@@ -70,8 +72,16 @@ upload.addEventListener(
 
       const { photo, info } = conversions[0]
 
-      console.log(photo)
-      console.log(info)
+      console.log({ photo, info })
+
+      // Create an object URL which points to the photo Blob data
+      const objectUrl = URL.createObjectURL(photo.data)
+
+      // Set the preview img src to the object URL and wait for it to load
+      Compress.loadImageElement(preview, objectUrl).then(() => {
+        // Revoke the object URL to free up memory
+        URL.revokeObjectURL(objectUrl)
+      })
     })
   },
   false

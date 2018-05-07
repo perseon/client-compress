@@ -1,10 +1,9 @@
-import base64 from "./core/base64"
-import converter from "./core/converter"
-import image from "./core/image"
+import * as converter from "./core/converter"
+import { resize, loadImageElement } from "./core/image"
 import Photo from "./core/Photo"
 
 class Compress {
-  constructor(options) {
+  constructor(options = {}) {
     this.setOptions(options)
   }
 
@@ -30,12 +29,14 @@ class Compress {
   }
 
   async _compressFile(file) {
+    // Create a new photo object
+    const photo = new Photo(file)
+
+    // Create the conversion info object
     const conversion = {}
     conversion.start = window.performance.now()
     conversion.quality = this.options.quality
-
-    // Create a new photo object
-    const photo = new Photo(file)
+    conversion.startType = photo.type
 
     // Load the file into the photo object
     await photo.load()
@@ -52,7 +53,7 @@ class Compress {
     let newWidth, newHeight
 
     if (this.options.resize) {
-      const resizedDims = image.resize(
+      const resizedDims = resize(
         photo.width,
         photo.height,
         this.options.maxWidth,
@@ -85,15 +86,15 @@ class Compress {
 
     conversion.end = window.performance.now()
     conversion.elapsedTimeInSeconds = (conversion.end - conversion.start) / 1000
+    conversion.endType = photo.type
 
     return { photo, info: conversion }
   }
 
-  _loopCompression(canvas, photo, conversion) {
+  async _loopCompression(canvas, photo, conversion) {
     conversion.iterations++
 
-    photo.data = converter.canvasToBase64(canvas, conversion.quality)
-    photo.size = base64.size(photo.data)
+    photo.setData(await converter.canvasToBlob(canvas, conversion.quality))
 
     if (conversion.iterations == 1) {
       // Update the photo width and height properties now that the photo data
@@ -117,7 +118,7 @@ class Compress {
         return
       } else {
         conversion.quality -= this.options.qualityStepSize
-        return this._loopCompression(canvas, photo, conversion)
+        return await this._loopCompression(canvas, photo, conversion)
       }
     } else {
       return
@@ -128,9 +129,13 @@ class Compress {
     return Promise.all(files.map((file) => this._compressFile(file)))
   }
 
-  // static convertBase64ToFile(base64, mime) {
-  //   return converter.base64ToFile(base64, mime)
-  // }
+  static async blobToBase64(...args) {
+    return await converter.blobToBase64(...args)
+  }
+
+  static async loadImageElement(...args) {
+    return await loadImageElement(...args)
+  }
 }
 
 // Supported input formats

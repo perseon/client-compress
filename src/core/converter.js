@@ -7,6 +7,29 @@ const base64ToFile = (base64, mime = "image/jpeg") => {
   return new window.Blob([new Uint8Array(content)], { type: mime })
 }
 
+const blobToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const fileReader = new window.FileReader()
+    fileReader.addEventListener(
+      "load",
+      (evt) => {
+        resolve(evt.target.result)
+      },
+      false
+    )
+
+    fileReader.addEventListener(
+      "error",
+      (err) => {
+        reject(err)
+      },
+      false
+    )
+
+    fileReader.readAsDataURL(file)
+  })
+}
+
 const imageToCanvas = (image, width, height, orientation) => {
   const canvas = document.createElement("canvas")
   const context = canvas.getContext("2d")
@@ -68,10 +91,17 @@ const imageToCanvas = (image, width, height, orientation) => {
   return canvas
 }
 
-const canvasToBase64 = (canvas, quality = 0.75) => {
-  // in order to compress the final image format has to be jpeg
-  const base64 = canvas.toDataURL("image/jpeg", quality)
-  return base64
+const canvasToBlob = (canvas, quality) => {
+  return new Promise((resolve, reject) => {
+    // In order to compress, the final image format must be jpeg
+    canvas.toBlob(
+      (blob) => {
+        resolve(blob)
+      },
+      "image/jpeg",
+      quality
+    )
+  })
 }
 
 const size = (size) => {
@@ -81,4 +111,4 @@ const size = (size) => {
   }
 }
 
-export default { base64ToFile, imageToCanvas, canvasToBase64, size }
+export { base64ToFile, imageToCanvas, canvasToBlob, size, blobToBase64 }
