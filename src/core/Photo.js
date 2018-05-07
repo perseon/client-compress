@@ -1,39 +1,38 @@
-import fileUtils from "./file"
-import rotate from "./rotate"
-import imageUtils from "./image"
-import converter from "./converter"
+import { extractOrientation } from "./rotate"
+import { loadImageElement } from "./image"
+import { imageToCanvas } from "./converter"
 
 // The photo model
 export default class Photo {
   constructor(file) {
-    this._file = file
+    this.data = file // Store the File or Blob
     this.name = file.name
     this.type = file.type
     this.size = file.size
   }
 
   async _calculateOrientation() {
-    const orientation = await rotate.orientation(this._file)
-    this.orientation =  orientation
+    const orientation = await extractOrientation(this.data)
+    this.orientation = orientation
   }
 
   async load() {
     await this._calculateOrientation()
-    const data = await fileUtils.load(this._file) // base64 data URL
-    this.data = data
 
-    const img = await imageUtils.load(data)
+    // Create an object URL which points to the File/Blob image data
+    const objectUrl = URL.createObjectURL(this.data)
+    const img = await loadImageElement(objectUrl)
+
+    // Image element has now loaded the object so we can safely revoke the
+    // object URL
+    URL.revokeObjectURL(objectUrl)
+
     this._img = img
     this.width = img.naturalWidth
     this.height = img.naturalHeight
   }
 
   getCanvas(width, height) {
-    return converter.imageToCanvas(
-      this._img,
-      width,
-      height,
-      this.orientation
-    )
+    return imageToCanvas(this._img, width, height, this.orientation)
   }
 }

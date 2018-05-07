@@ -9,7 +9,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack -p --config webpack.config.js",
     "watch":
-      "webpack --config webpack.config.js --watch -o out/index.js --mode development --devtool source-map",
+      "webpack --config webpack.config.js --watch -o example_test/out/index.js --mode development --devtool source-map",
     "precommit": "pretty-quick --staged"
   },
   "author": "David Moodie <david@davidmoodie.com> (https://davidmoodie.com)",

@@ -20,9 +20,11 @@ upload.addEventListener(
     compress.compress(files).then((conversions) => {
       const { photo, info } = conversions[0]
 
-      preview.src = photo.data
+      console.log({ photo, info })
 
-      console.log({photo, info})
+      Compress.blobToBase64(photo.data).then((base64) => {
+        preview.src = base64
+      })
     })
   },
   false
