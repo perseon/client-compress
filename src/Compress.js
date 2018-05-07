@@ -29,12 +29,14 @@ class Compress {
   }
 
   async _compressFile(file) {
+    // Create a new photo object
+    const photo = new Photo(file)
+
+    // Create the conversion info object
     const conversion = {}
     conversion.start = window.performance.now()
     conversion.quality = this.options.quality
-
-    // Create a new photo object
-    const photo = new Photo(file)
+    conversion.startType = photo.type
 
     // Load the file into the photo object
     await photo.load()
@@ -84,6 +86,7 @@ class Compress {
 
     conversion.end = window.performance.now()
     conversion.elapsedTimeInSeconds = (conversion.end - conversion.start) / 1000
+    conversion.endType = photo.type
 
     return { photo, info: conversion }
   }
@@ -91,8 +94,7 @@ class Compress {
   async _loopCompression(canvas, photo, conversion) {
     conversion.iterations++
 
-    photo.data = await converter.canvasToBlob(canvas, conversion.quality)
-    photo.size = photo.data.size
+    photo.setData(await converter.canvasToBlob(canvas, conversion.quality))
 
     if (conversion.iterations == 1) {
       // Update the photo width and height properties now that the photo data

@@ -9,9 +9,24 @@ const options = {
 
 const compress = new Compress(options)
 const preview = document.getElementById("preview")
-const output = document.getElementById("output")
 
 const upload = document.getElementById("upload")
+
+function displayObject(obj, elId) {
+  const el = document.getElementById(elId)
+  let html = "<table border='1'>"
+  for (const [key, value] of Object.entries(obj)) {
+    if (!key.startsWith("_")) {
+      html += `
+      <tr>
+        <th>${key}</th>
+        <td>${value}</td>
+      </tr>`
+    }
+  }
+  html += "</table>"
+  el.innerHTML = html
+}
 
 upload.addEventListener(
   "change",
@@ -20,11 +35,14 @@ upload.addEventListener(
     compress.compress(files).then((conversions) => {
       const { photo, info } = conversions[0]
 
-      console.log({ photo, info })
+      console.log({photo, info})
 
       Compress.blobToBase64(photo.data).then((base64) => {
         preview.src = base64
       })
+
+      displayObject(photo, 'output-photo')
+      displayObject(info, 'output-info')
     })
   },
   false

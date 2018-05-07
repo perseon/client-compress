@@ -11,6 +11,12 @@ export default class Photo {
     this.size = file.size
   }
 
+  setData(data) {
+    this.data = data
+    this.size = data.size
+    this.type = data.type
+  }
+
   async _calculateOrientation() {
     const orientation = await extractOrientation(this.data)
     this.orientation = orientation

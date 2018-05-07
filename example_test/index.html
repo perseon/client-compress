@@ -5,6 +5,7 @@
   <style type="text/css">
     body {
       font-family: Helvetica, Arial;
+      margin-bottom: 50px;
     }
     .container {
       max-width: 640px;
@@ -17,26 +18,40 @@
     }
 		table {
 			text-align: left;
+      table-layout: fixed;
+      width: 100%;
+      border-collapse: collapse;
 		}
+    th {
+      width: 215px;
+    }
 		td, th {
-			padding: 5px;
+			padding: 6px 10px;
+      overflow-x: hidden;
+      text-overflow: ellipsis;
 		}
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Compress.js</h1>
-    <h3>Usage</h3>
+    <h1>client-compress</h1>
+    <h2 style="font-size: 1.1em; margin-bottom: 40px;">
+      <a href="https://davidmoodie.com" target="_blank" rel="noreferrer nofollow">- by David Moodie</a>
+    </h2>
+    <h2>Usage</h2>
     <p>Compress your images before uploading to your database. Get it from
-    <a href="https://www.npmjs.com/package/compress.js">here</a>.</p>
-    <h3>Demo</h3>
+    <a href="https://github.com/davejm/client-compress">here</a>.</p>
+    <h2>Demo</h2>
     <p>Upload an image and watch the file size before and after.</p>
     <div>
       <input accept="image/*" id="upload" name="" type="file">
     </div>
-    <div>
+    <div style="margin-top: 20px;">
       <img alt="" id="preview" src="">
-      <p id="output"></p>
+      <h3>Photo object</h3>
+      <div id="output-photo">Compress an image to see some output</div>
+      <h3>Info object</h3>
+      <div id="output-info">Compress an image to see some output</div>
     </div>
   </div>
   <script src='out/index.js' type="text/javascript">
