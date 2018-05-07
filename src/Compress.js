@@ -9,7 +9,7 @@ class Compress {
 
   setOptions(options) {
     const defaultOptions = {
-      targetSize: 1, // the max size in MB
+      targetSize: Infinity, // the max size in MB
       quality: 0.75, // the quality of the image, max is 1
       minQuality: 0.5,
       qualityStepSize: 0.1,
