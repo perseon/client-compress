@@ -104,7 +104,7 @@ Here is an example of one of the elements in the output array:
     "type": "image/jpeg",
     "size": 55472.99270072992,
     "orientation": -1,
-    "data": "data:image/jpeg;base64,.......................",
+    "data": "[object Blob]",
     "width": 800,
     "height": 435.6913183279743
   },
@@ -112,6 +112,7 @@ Here is an example of one of the elements in the output array:
   "info": {
     "start": 3572.8999999992084,
     "quality": 0.75,
+    "startType": "image/jpeg",
     "startWidth": 4976,
     "startHeight": 2710,
     "endWidth": 800,
@@ -121,7 +122,8 @@ Here is an example of one of the elements in the output array:
     "endSizeMB": 0.05547299270072992,
     "sizeReducedInPercent": 98.22021686385153,
     "end": 4180.400000004738,
-    "elapsedTimeInSeconds": 0.6075000000055297
+    "elapsedTimeInSeconds": 0.6075000000055297,
+    "endType": "image/jpeg"
   }
 }
 ```
