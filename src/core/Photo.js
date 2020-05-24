@@ -39,7 +39,12 @@ export default class Photo {
     this.height = img.naturalHeight
   }
 
-  getCanvas(width, height) {
-    return imageToCanvas(this._img, width, height, this.orientation)
+  getCanvas(width, height, orientationOverride) {
+    console.log(orientationOverride)
+    if (orientationOverride !== undefined) {
+      return imageToCanvas(this._img, width, height, orientationOverride)
+    } else {
+      return imageToCanvas(this._img, width, height, this.orientation)
+    }
   }
 }

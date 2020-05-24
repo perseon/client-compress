@@ -16,7 +16,8 @@ class Compress {
       maxWidth: 1920,
       maxHeight: 1920,
       resize: true,
-      throwIfSizeNotReached: false
+      throwIfSizeNotReached: false,
+      autoRotate: true
     }
 
     const handler = {
@@ -70,7 +71,8 @@ class Compress {
     conversion.endHeight = newHeight
 
     // Create a canvas element and resize the image onto the canvas
-    const canvas = photo.getCanvas(newWidth, newHeight)
+    const orientationOverride = this.doAutoRotation ? undefined : 1
+    const canvas = photo.getCanvas(newWidth, newHeight, orientationOverride)
 
     // Initialise some variables for recursive call
     conversion.iterations = 0
@@ -125,7 +127,13 @@ class Compress {
     }
   }
 
-  compress(files) {
+  async setAutoRotate() {
+    const supportsAutoRotation = await Compress.automaticRotationFeatureTest()
+    this.doAutoRotation = this.options.autoRotate && !supportsAutoRotation
+  }
+
+  async compress(files) {
+    await this.setAutoRotate()
     return Promise.all(files.map((file) => this._compressFile(file)))
   }
 
@@ -135,6 +143,29 @@ class Compress {
 
   static async loadImageElement(...args) {
     return await loadImageElement(...args)
+  }
+
+  static automaticRotationFeatureTest() {
+    // Black 2x1 JPEG, with the following meta information set:
+    // - EXIF Orientation: 6 (Rotated 90° CCW)
+    // Source: https://github.com/blueimp/JavaScript-Load-Image
+    const testAutoOrientationImageURL =
+      "data:image/jpeg;base64,/9j/4QAiRXhpZgAATU0AKgAAAAgAAQESAAMAAAABAAYAAAA" +
+      "AAAD/2wCEAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBA" +
+      "QEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQE" +
+      "BAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAf/AABEIAAEAAgMBEQACEQEDEQH/x" +
+      "ABKAAEAAAAAAAAAAAAAAAAAAAALEAEAAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAAA" +
+      "AAAAAEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwA/8H//2Q=="
+
+    return new Promise((resolve) => {
+      const img = new Image()
+      img.onload = () => {
+        // Check if browser supports automatic image orientation:
+        const supported = img.width === 1 && img.height === 2
+        resolve(supported)
+      }
+      img.src = testAutoOrientationImageURL
+    })
   }
 }
 
