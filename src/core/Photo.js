@@ -40,7 +40,6 @@ export default class Photo {
   }
 
   getCanvas(width, height, orientationOverride) {
-    console.log(orientationOverride)
     if (orientationOverride !== undefined) {
       return imageToCanvas(this._img, width, height, orientationOverride)
     } else {
