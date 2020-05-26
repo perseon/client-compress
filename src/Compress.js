@@ -74,6 +74,16 @@ class Compress {
     const orientationOverride = this.doAutoRotation ? undefined : 1
     const canvas = photo.getCanvas(newWidth, newHeight, orientationOverride)
 
+    let ctx = canvas.getContext("2d");
+
+    ctx.font = "30px Arial bold";
+
+    ctx.textAlign = "center";
+
+    ctx.fillStyle = "white";
+
+    ctx.fillText(`${this.options.term_id} ${(new Date).toLocaleTimeString()}`, canvas.width/2, 25);
+
     // Initialise some variables for recursive call
     conversion.iterations = 0
     conversion.startSizeMB = converter.size(photo.size).MB
